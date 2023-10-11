@@ -10,13 +10,19 @@ services:
 
 
   db:
-    image: postgres
+    container_name: db
+    image: postgres:alpine3.17
     restart: always
+    ports:
+      - "5432:5432"
+    
     environment:
-      POSTGRES_USER: serg
-      POSTGRES_PASSWORD: 12345
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=admin
+      
 
   adminer:
+    container_name: adminer
     image: adminer
     restart: always
     ports:
