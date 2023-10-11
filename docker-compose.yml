@@ -1,0 +1,23 @@
+#Yakovlev
+version: '3.1'
+
+services:
+#http://localhost:8081/items/5?q=somequery
+  fastapi:
+    build: ./
+    ports:
+      - 8081:80
+
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: serg
+      POSTGRES_PASSWORD: 12345
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
