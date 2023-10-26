@@ -7,6 +7,8 @@ services:
     build: ./
     ports:
       - 8081:80
+    networks:
+      - backend
 
 
   db:
@@ -15,10 +17,14 @@ services:
     restart: always
     ports:
       - "5432:5432"
-    
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_USER=admin
+       POSTGRES_PASSWORD: root
+       POSTGRES_USER: admin
+       POSTGRES_DB: my_db
+    networks:
+      - backend
       
 
   adminer:
@@ -27,3 +33,11 @@ services:
     restart: always
     ports:
       - 8080:8080
+    environment: 
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: galkaev
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge
