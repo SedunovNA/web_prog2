@@ -1,3 +1,6 @@
 fastapi>=0.68.0,<0.69.0
 pydantic>=1.8.0,<2.0.0
 uvicorn>=0.15.0,<0.16.0
+sqlalchemy==2.0.21
+psycopg2==2.9.9
+crud==0.1
