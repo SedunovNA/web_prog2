@@ -2,15 +2,18 @@ from typing import Union
 
 from fastapi import FastAPI,Depends, HTTPException
 
-from app.models.vallet import Vallet, Currency, Category, Transaction
+from app.models.vallet import Vallet, Currency, Category, Transaction, Purchase
 
 from app.config.database import engine, get_db, Base
 
-from app.schemas.vallet_schema import CreateRequestVallet,Response, CreateRequestCurrency, CreateRequestCategory, CreateRequestTransaction
+from app.schemas.vallet_schema import CreateRequestVallet,Response, CreateRequestCurrency, CreateRequestCategory, CreateRequestTransaction, CreateRequestPurchase
 
 from sqlalchemy.orm import Session
 
 from array import *
+
+from currency_converter import CurrencyConverter
+from datetime import datetime
 
 #Vallet.metadata.create_all(bind=engine)
 Base.metadata.create_all(bind=engine)
@@ -46,7 +49,7 @@ async def get_vallets_id(id: int, db:Session = Depends(get_db)):
 
 
 @app.post("/vallets/create")
-async def vallets(vallet: CreateRequestVallet, db:Session = Depends(get_db)):
+async def create_vallets(vallet: CreateRequestVallet, db:Session = Depends(get_db)):
 
     currency = db.query(Currency).get(vallet.currency_id)
 
@@ -108,22 +111,42 @@ async def add_category(category: CreateRequestCategory, db:Session = Depends(get
 async def add_transaction(transaction: CreateRequestTransaction, db:Session = Depends(get_db)):
 
     w=Transaction(**transaction.dict())
-    vallet1 = db.query(Vallet).get(w.vallet_id_1)
-    vallet2 = db.query(Vallet).get(w.vallet_id_2)
+    vallet1 = db.query(Vallet).get(w.source)
+    vallet2 = db.query(Vallet).get(w.target)
 
-    if(w.currency_id!=vallet2.currency_id):
-        babki = w.symma * curs_usd[w.vallet_id_1]
-    else: babki = w.symma
-        
+    cur_sourse = db.query(Currency).get(vallet1.currency_id)
+    cur_target = db.query(Currency).get(vallet2.currency_id)
 
-    if(vallet1!=vallet2):
-        vallet1.amount -= w.symma
-        vallet2.amount += babki
-        db.commit()
-    else: 
-        vallet1.amount -= babki
-        db.commit()
+    c = CurrencyConverter()
+    babki = c.convert(w.symma, cur_sourse.name , cur_target.name)
 
+    
+    vallet1.amount -= w.symma
+    vallet2.amount += babki
+    db.commit()
+
+    
+  
+    w.rate = c.convert(1, cur_sourse.name , cur_target.name)
+    now = datetime.now()
+    w.date = now.strftime("%m/%d/%Y, %H:%M:%S")
+    db.add(w)
+    db.commit()
+    db.refresh(w)
+
+    return Response(
+        code=200,
+        message="Success",
+        data=w
+    )
+
+@app.post("/purchase/add")
+async def add_purchase(purchase: CreateRequestPurchase, db:Session = Depends(get_db)):
+    w=Purchase(**purchase.dict())
+    vallet = db.query(Vallet).get(w.wallet_id)
+    vallet.amount -= w.symma
+    now = datetime.now()
+    w.date = now.strftime("%m/%d/%Y, %H:%M:%S")
 
     db.add(w)
     db.commit()
@@ -134,6 +157,7 @@ async def add_transaction(transaction: CreateRequestTransaction, db:Session = De
         message="Success",
         data=w
     )
+
 
 
 @app.delete("/vallets/delete/{id}")

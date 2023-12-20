@@ -37,9 +37,16 @@ class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
 
-    vallet_id_1 = Column(Integer, ForeignKey("vallets.id"))
-    vallet_id_2 = Column(Integer, ForeignKey("vallets.id"))
-    currency_id = Column(Integer, ForeignKey("currencies.id"))
-    category_id = Column(Integer, ForeignKey("categories.id"))
+    source = Column(Integer, ForeignKey("vallets.id"))
+    target = Column(Integer, ForeignKey("vallets.id"))
     symma = Column(Float)
+    rate = Column(Float)
+    date = Column(String)
 
+class Purchase(Base):
+    __tablename__="purchases"
+    id = Column(Integer, primary_key=True, index=True)
+    category_id = Column(Integer, ForeignKey("categories.id"))
+    wallet_id = Column(Integer, ForeignKey("vallets.id"))
+    symma = Column(Float)
+    date = Column(String)

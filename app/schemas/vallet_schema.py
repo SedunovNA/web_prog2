@@ -17,24 +17,25 @@ T = TypeVar('T')
 class CreateRequestVallet(BaseModel):
     currency_id: Union[int, None] = None
     amount: Union[float, None] = None
-    class Config:
-        orm_mode = True
+   
 
 class CreateRequestCurrency(BaseModel):
-    id: Union[int, None] = None
     name: Union[str, None] = None
 
 class CreateRequestCategory(BaseModel):
-    id: Union[int, None] = None
     name: Union[str, None] = None
 
 class CreateRequestTransaction(BaseModel):
-    id: Union[int, None] = None
-    vallet_id_1: Union[int, None] = None
-    vallet_id_2: Union[int, None] = None
-    currency_id: Union[int, None] = None
-    category_id: Union[int, None] = None
+
+    source: Union[int, None] = None
+    target: Union[int, None] = None
     symma: Union[float, None] = None
+
+class CreateRequestPurchase(BaseModel):
+    category_id: Union[int, None] = None
+    wallet_id: Union[int, None] = None
+    symma: Union[float, None] = None
+   
 
 class Response(GenericModel, Generic[T]):
     code: int = 200
@@ -44,9 +45,9 @@ class Response(GenericModel, Generic[T]):
 
  
 
-class Request(GenericModel, Generic[T]):
-    parameter: Optional[T] = Field(...)
+# class Request(GenericModel, Generic[T]):
+#     parameter: Optional[T] = Field(...)
 
 
-class RequestVallet(BaseModel):
-    parameter: CreateRequestVallet = Field(...)
+# class RequestVallet(BaseModel):
+#     parameter: CreateRequestVallet = Field(...)
