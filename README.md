@@ -1,4 +1,4 @@
-# financial-accounting-service
+# financial calculation
 Docker / FastAPI / Postgres /  SQLAlchemy / Pydantic/Migrate / RESTAPIful
  test
 
